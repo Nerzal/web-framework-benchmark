@@ -9,8 +9,6 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-var sizes = []int{1000, 1_000_000, 10_000_000}
-
 func init() {
 	r := echo.New()
 	r.HideBanner = true
