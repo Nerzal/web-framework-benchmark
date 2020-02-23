@@ -1,6 +1,7 @@
 package router
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -15,6 +16,10 @@ func init() {
 
 	r.GET("/hello", func(c echo.Context) error {
 		return c.JSON(200, "hello")
+	})
+
+	r.GET("/hello/:id/world", func(c echo.Context) error {
+		return c.JSON(200, "hello "+c.Param("id")+" world")
 	})
 
 	r.GET("/static", func(c echo.Context) error {
@@ -36,6 +41,10 @@ func init() {
 		return ctx.Response.SendFile("README.md")
 	})
 
+	a.GET("/hello/:id/world", func(ctx *atreugo.RequestCtx) error {
+		return ctx.TextResponse(fmt.Sprintf("hello %s world", ctx.UserValue("id")), 200)
+	})
+
 	go a.ListenAndServe()
 
 	gin.SetMode(gin.ReleaseMode)
@@ -46,6 +55,10 @@ func init() {
 
 	g.GET("/static", func(c *gin.Context) {
 		c.File("README.md")
+	})
+
+	g.GET("/hello/:id/world", func(c *gin.Context) {
+		c.String(200, "hello "+c.Param("id")+" world")
 	})
 
 	go g.Run("0.0.0.0:1337")
@@ -86,6 +99,51 @@ func Benchmark_Gin_Hello(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		status, _, err := fasthttp.Get(nil, "http://localhost:1337/hello")
+		if err != nil {
+			b.Error("failed to call hello: ", err)
+		}
+
+		if status != 200 {
+			b.Error("received wrong statuscode")
+		}
+	}
+}
+
+func Benchmark_Atreugo_Hello_PathParam(b *testing.B) {
+	b.ReportAllocs()
+
+	for i := 0; i < b.N; i++ {
+		status, _, err := fasthttp.Get(nil, "http://localhost:1339/hello/42/world")
+		if err != nil {
+			b.Error("failed to call hello: ", err)
+		}
+
+		if status != 200 {
+			b.Error("received wrong statuscode")
+		}
+	}
+}
+
+func Benchmark_Echo_Hello_PathParam(b *testing.B) {
+	b.ReportAllocs()
+
+	for i := 0; i < b.N; i++ {
+		status, _, err := fasthttp.Get(nil, "http://localhost:1338/hello/42/world")
+		if err != nil {
+			b.Error("failed to call hello: ", err)
+		}
+
+		if status != 200 {
+			b.Error("received wrong statuscode")
+		}
+	}
+}
+
+func Benchmark_Gin_Hello_PathParam(b *testing.B) {
+	b.ReportAllocs()
+
+	for i := 0; i < b.N; i++ {
+		status, _, err := fasthttp.Get(nil, "http://localhost:1337/hello/42/world")
 		if err != nil {
 			b.Error("failed to call hello: ", err)
 		}
