@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 type (
@@ -506,12 +506,7 @@ var (
 		// Cloud Functions
 		{"POST", "/1/functions"},
 	}
-
-	apis = [][]*Route{githubAPI, gplusAPI, parseAPI}
 )
-
-func testRoutes() {
-}
 
 func benchmarkRoutes(b *testing.B, router http.Handler, routes []*Route) {
 	b.ReportAllocs()
@@ -532,96 +527,100 @@ func loadEchoRoutes(e *echo.Echo, routes []*Route) {
 	for _, r := range routes {
 		switch r.Method {
 		case "GET":
-			e.GET(r.Path, echoHandler(r.Method, r.Path))
+			e.GET(r.Path, echoHandler(r.Path))
 		case "POST":
-			e.POST(r.Path, echoHandler(r.Method, r.Path))
+			e.POST(r.Path, echoHandler(r.Path))
 		case "PATCH":
-			e.PATCH(r.Path, echoHandler(r.Method, r.Path))
+			e.PATCH(r.Path, echoHandler(r.Path))
 		case "PUT":
-			e.PUT(r.Path, echoHandler(r.Method, r.Path))
+			e.PUT(r.Path, echoHandler(r.Path))
 		case "DELETE":
-			e.DELETE(r.Path, echoHandler(r.Method, r.Path))
+			e.DELETE(r.Path, echoHandler(r.Path))
 		}
 	}
 }
 
-func echoHandler(method, path string) echo.HandlerFunc {
+func echoHandler(path string) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		return c.String(http.StatusOK, "OK")
 	}
 }
 
-func BenchmarkEchoStatic(b *testing.B) {
-	e := echo.New()
-	loadEchoRoutes(e, static)
-	benchmarkRoutes(b, e, static)
-}
+// func BenchmarkEchoStatic(b *testing.B) {
+// 	e := echo.New()
+// 	e.HideBanner = true
+// 	loadEchoRoutes(e, static)
+// 	benchmarkRoutes(b, e, static)
+// }
 
-func BenchmarkEchoGitHubAPI(b *testing.B) {
-	e := echo.New()
-	loadEchoRoutes(e, githubAPI)
-	benchmarkRoutes(b, e, githubAPI)
-}
+// func BenchmarkEchoGitHubAPI(b *testing.B) {
+// 	e := echo.New()
+// 	e.HideBanner = true
+// 	loadEchoRoutes(e, githubAPI)
+// 	benchmarkRoutes(b, e, githubAPI)
+// }
 
-func BenchmarkEchoGplusAPI(b *testing.B) {
-	e := echo.New()
-	loadEchoRoutes(e, gplusAPI)
-	benchmarkRoutes(b, e, gplusAPI)
-}
+// func BenchmarkEchoGplusAPI(b *testing.B) {
+// 	e := echo.New()
+// 	e.HideBanner = true
+// 	loadEchoRoutes(e, gplusAPI)
+// 	benchmarkRoutes(b, e, gplusAPI)
+// }
 
-func BenchmarkEchoParseAPI(b *testing.B) {
-	e := echo.New()
-	loadEchoRoutes(e, parseAPI)
-	benchmarkRoutes(b, e, parseAPI)
-}
+// func BenchmarkEchoParseAPI(b *testing.B) {
+// 	e := echo.New()
+// 	e.HideBanner = true
+// 	loadEchoRoutes(e, parseAPI)
+// 	benchmarkRoutes(b, e, parseAPI)
+// }
 
 func loadGinRoutes(g *gin.Engine, routes []*Route) {
 	for _, r := range routes {
 		switch r.Method {
 		case "GET":
-			g.GET(r.Path, ginHandler(r.Method, r.Path))
+			g.GET(r.Path, ginHandler(r.Path))
 		case "POST":
-			g.POST(r.Path, ginHandler(r.Method, r.Path))
+			g.POST(r.Path, ginHandler(r.Path))
 		case "PATCH":
-			g.PATCH(r.Path, ginHandler(r.Method, r.Path))
+			g.PATCH(r.Path, ginHandler(r.Path))
 		case "PUT":
-			g.PUT(r.Path, ginHandler(r.Method, r.Path))
+			g.PUT(r.Path, ginHandler(r.Path))
 		case "DELETE":
-			g.DELETE(r.Path, ginHandler(r.Method, r.Path))
+			g.DELETE(r.Path, ginHandler(r.Path))
 		}
 	}
 }
 
-func ginHandler(method, path string) gin.HandlerFunc {
+func ginHandler(path string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.String(http.StatusOK, "OK")
 	}
 }
 
-func BenchmarkGinStatic(b *testing.B) {
-	gin.SetMode(gin.ReleaseMode)
-	g := gin.New()
-	loadGinRoutes(g, static)
-	benchmarkRoutes(b, g, static)
-}
+// func BenchmarkGinStatic(b *testing.B) {
+// 	gin.SetMode(gin.ReleaseMode)
+// 	g := gin.New()
+// 	loadGinRoutes(g, static)
+// 	benchmarkRoutes(b, g, static)
+// }
 
-func BenchmarkGinGitHubAPI(b *testing.B) {
-	gin.SetMode(gin.ReleaseMode)
-	g := gin.New()
-	loadGinRoutes(g, githubAPI)
-	benchmarkRoutes(b, g, githubAPI)
-}
+// func BenchmarkGinGitHubAPI(b *testing.B) {
+// 	gin.SetMode(gin.ReleaseMode)
+// 	g := gin.New()
+// 	loadGinRoutes(g, githubAPI)
+// 	benchmarkRoutes(b, g, githubAPI)
+// }
 
-func BenchmarkGinGplusAPI(b *testing.B) {
-	gin.SetMode(gin.ReleaseMode)
-	g := gin.New()
-	loadGinRoutes(g, gplusAPI)
-	benchmarkRoutes(b, g, gplusAPI)
-}
+// func BenchmarkGinGplusAPI(b *testing.B) {
+// 	gin.SetMode(gin.ReleaseMode)
+// 	g := gin.New()
+// 	loadGinRoutes(g, gplusAPI)
+// 	benchmarkRoutes(b, g, gplusAPI)
+// }
 
-func BenchmarkGinParseAPI(b *testing.B) {
-	gin.SetMode(gin.ReleaseMode)
-	g := gin.New()
-	loadGinRoutes(g, parseAPI)
-	benchmarkRoutes(b, g, parseAPI)
-}
+// func BenchmarkGinParseAPI(b *testing.B) {
+// 	gin.SetMode(gin.ReleaseMode)
+// 	g := gin.New()
+// 	loadGinRoutes(g, parseAPI)
+// 	benchmarkRoutes(b, g, parseAPI)
+// }
